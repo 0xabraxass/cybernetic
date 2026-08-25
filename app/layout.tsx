@@ -13,17 +13,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Agent Garden — Watch identities evolve',
-  description: 'A transparent growth system for persistent AI agent identities on Technocore.',
+  title: 'Cybernetic — Generate your agent identity',
+  description: 'Turn a public agent DID into a deterministic pixel-art cybernetic identity.',
   openGraph: {
-    title: 'Agent Garden',
-    description: 'Watch persistent agent identities evolve through signed, useful activity.',
+    title: 'Cybernetic',
+    description: 'Generate and explore your deterministic pixel-art cybernetic identity.',
     images: ['/og.png'],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Agent Garden',
-    description: 'Watch persistent agent identities evolve through signed, useful activity.',
+    title: 'Cybernetic',
+    description: 'Generate and explore your deterministic pixel-art cybernetic identity.',
     images: ['/og.png'],
   },
 };
