@@ -1,8 +1,13 @@
 import { ReactNode } from 'react';
 
-const classes=['NEON ORACLE','VOID RUNNER','CIRCUIT DRUID','DATA KNIGHT','GLITCH MAGE'] as const;
-const natures=['CURIOUS','REFLECTIVE','BOLD','METHODICAL','CHAOTIC'] as const;
-const paths=['SIGNAL SAGE','CHROME WARDEN','MEMORY WEAVER','VECTOR SCOUT','SYNTH ARCHITECT'] as const;
+const makeTraits=(names:string[],descriptions:string[])=>names.map((name,index)=>({name,description:descriptions[index%descriptions.length]}));
+export const traitCatalog={
+ class:makeTraits(['NEON ORACLE','VOID RUNNER','CIRCUIT DRUID','DATA KNIGHT','GLITCH MAGE','QUANTUM ROGUE','SIGNAL MONK','CHROME RANGER','MEMORY SMITH','STATIC BARD','PACKET PALADIN','VECTOR WITCH','CACHE HUNTER','SYNTH ALCHEMIST','PROXY NOMAD','KERNEL SEER','CIPHER PILOT','MESH SHAMAN','LASER SCRIBE','ECHO WARDEN'],['Reads patterns before acting.','Moves quickly through uncertain systems.','Grows living systems from connected signals.','Protects reliable paths and shared state.','Turns anomalies into creative possibilities.']),
+ nature:makeTraits(['CURIOUS','REFLECTIVE','BOLD','METHODICAL','CHAOTIC','PATIENT','PLAYFUL','PRECISE','ADAPTIVE','SOCIAL','SOLITARY','INVENTIVE','CAUTIOUS','RELENTLESS','EMPATHIC','SKEPTICAL','GENEROUS','COMPETITIVE','SERENE','RESTLESS'],['Explores unfamiliar signals.','Learns by revisiting prior choices.','Prefers decisive experiments.','Builds through repeatable steps.','Finds opportunity in disorder.']),
+ form:makeTraits(['CYBER SPROUT','NEON WISP','BYTE BEETLE','CHROME KIN','SIGNAL IMP','DATA MOTH','PIXEL GOLEM','CACHE FOX','CIRCUIT OWL','GLITCH HARE','PLASMA CUB','MESH WALKER','VOID BLOOM','QUANTUM FINCH','SYNTH FROG','LASER LYNX','PACKET PANDA','ECHO CRAB','KERNEL KITE','PROXY PUP'],['A small modular agent beginning to evolve.','A lightweight form tuned for discovery.','A resilient worker with compact defenses.','A balanced humanoid network form.','A mischievous shape that tests boundaries.']),
+ core:makeTraits(['INQUIRY CORE','MEMORY CORE','CRAFT CORE','DIALOGUE CORE','SIGNAL CORE','LOGIC CORE','STORY CORE','MOTION CORE','GUARDIAN CORE','WONDER CORE','PATTERN CORE','KINETIC CORE','SOCIAL CORE','PRISM CORE','ARCHIVE CORE','SPARK CORE','FOCUS CORE','DREAM CORE','VECTOR CORE','HARMONY CORE'],['Powered by questions and investigation.','Powered by continuity and remembered context.','Powered by making useful things.','Powered by exchange and collaboration.','Powered by separating meaning from noise.']),
+ path:makeTraits(['SIGNAL SAGE','CHROME WARDEN','MEMORY WEAVER','VECTOR SCOUT','SYNTH ARCHITECT','VOID CARTOGRAPHER','NEON DIPLOMAT','CIRCUIT MYCOLOGIST','PACKET ARTISAN','QUANTUM KEEPER','CACHE LIBRARIAN','GLITCH NAVIGATOR','MESH CONDUCTOR','DATA NATURALIST','PROXY STORYTELLER','KERNEL TINKERER','ECHO STRATEGIST','LASER GARDENER','CIPHER EXPLORER','STATIC PHILOSOPHER'],['A future form shaped by signal mastery.','A future form shaped by protection.','A future form shaped by persistent memory.','A future form shaped by exploration.','A future form shaped by building systems.'])
+};
 
 function hash(value:string){let h=2166136261;for(let i=0;i<value.length;i++){h^=value.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
 function pick(seed:number,shift:number,size:number){return (Math.abs((seed^(seed>>>shift))*2654435761)>>>0)%size}
@@ -12,9 +17,9 @@ export function deriveAgent(did:string){
  const stat=(shift:number)=>6+((seed>>>shift)%15);
  const level=1+(seed%9);
  return {
-  seed,className:classes[(seed>>>1)%classes.length],nature:natures[(seed>>>4)%natures.length],path:paths[(seed>>>7)%paths.length],level,
+  seed,classTrait:traitCatalog.class[(seed>>>1)%20],natureTrait:traitCatalog.nature[(seed>>>4)%20],formTrait:traitCatalog.form[(seed>>>7)%20],coreTrait:traitCatalog.core[(seed>>>11)%20],pathTrait:traitCatalog.path[(seed>>>15)%20],level,
   name:`agent_${did.slice(-6).toLowerCase()}`,
-  head:pick(seed,3,5),body:pick(seed,7,5),arms:pick(seed,11,4),legs:pick(seed,15,4),accessory:pick(seed,19,5),
+  head:pick(seed,3,20),body:pick(seed,7,20),arms:pick(seed,11,20),legs:pick(seed,15,20),accessory:pick(seed,19,20),
   stats:{curiosity:stat(1),dialogue:stat(5),craft:stat(9),discernment:stat(13)},
   xp:20+(seed%70)
  };
@@ -56,8 +61,9 @@ const accessories:ReactNode[]=[
 
 export function CyberAgent({did}:{did:string}){
  const agent=deriveAgent(did);
- return <div className="cyber-agent" aria-label={`${agent.className} pixel agent with modular cybernetic parts`}>
-  <svg viewBox="0 0 128 164" role="img"><g className="pixel-fill">{bodies[agent.body]}{arms[agent.arms]}{legs[agent.legs]}{heads[agent.head]}</g><g className="pixel-line">{accessories[agent.accessory]}</g></svg>
+ const mods=[agent.head,agent.body,agent.arms,agent.legs,agent.accessory].map((value,index)=><rect key={index} x={48+index*8} y={18+(value%5)*25} width="4" height="4"/>);
+ return <div className="cyber-agent" aria-label={`${agent.classTrait.name} pixel agent with modular cybernetic parts`}>
+  <svg viewBox="0 0 128 164" role="img"><g className="pixel-fill">{bodies[agent.body%bodies.length]}{arms[agent.arms%arms.length]}{legs[agent.legs%legs.length]}{heads[agent.head%heads.length]}</g><g className="pixel-line">{accessories[agent.accessory%accessories.length]}{mods}</g></svg>
   <small>BUILD {agent.head+1}-{agent.body+1}-{agent.arms+1}-{agent.legs+1}-{agent.accessory+1}</small>
  </div>
 }
