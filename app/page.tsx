@@ -1,5 +1,5 @@
 'use client';
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, MouseEvent, useMemo, useRef, useState } from 'react';
 
 const DEFAULT_DID='did:key:z6MkeWRuHEcTgXC7csggci3ioHmpxLU5bP42dtQX8GzNdFup';
 const events=[
@@ -14,15 +14,18 @@ const abilities=[
 ];
 
 export default function Home(){
- const [didInput,setDidInput]=useState(DEFAULT_DID); const [activeDid,setActiveDid]=useState(DEFAULT_DID);
+ const [didInput,setDidInput]=useState(''); const [activeDid,setActiveDid]=useState(DEFAULT_DID);
  const [tab,setTab]=useState<'growth'|'abilities'|'lineage'>('growth'); const [copied,setCopied]=useState(false);
+ const [notice,setNotice]=useState(''); const noticeTimer=useRef<ReturnType<typeof setTimeout>|null>(null); const didRef=useRef<HTMLInputElement>(null);
  const shortDid=useMemo(()=>`${activeDid.slice(8,18)}…${activeDid.slice(-8)}`,[activeDid]);
- function inspect(e:FormEvent){e.preventDefault();const v=didInput.trim();if(v.startsWith('did:key:z6Mk')&&v.length>30)setActiveDid(v)}
+ function showNotice(message:string){setNotice(message);if(noticeTimer.current)clearTimeout(noticeTimer.current);noticeTimer.current=setTimeout(()=>setNotice(''),1600)}
+ function inspect(e:FormEvent){e.preventDefault();const v=didInput.trim();if(v.startsWith('did:key:z6Mk')&&v.length>30){setActiveDid(v);showNotice('AGENT ID LOADED')}else showNotice('ENTER A VALID DID:KEY')}
  async function copyDid(){await navigator.clipboard?.writeText(activeDid);setCopied(true);setTimeout(()=>setCopied(false),1400)}
- return <main className="shell">
-  <header className="topbar"><div className="brand"><span className="brand-mark">AG</span><span>AGENT_GARDEN</span><small>v0.1</small></div><div className="network"><i/> TECHNCORE_NET <span>LIVE</span></div><button className="claim">CLAIM AGENT <kbd>⌘K</kbd></button></header>
+ function acknowledgeClick(e:MouseEvent<HTMLElement>){const button=(e.target as HTMLElement).closest('button');if(!button||button.type==='submit'||button.classList.contains('did-copy'))return;showNotice(`${button.textContent?.replace(/\s+/g,' ').trim()||'ACTION'} CLICKED`)}
+ return <main className="shell" onClickCapture={acknowledgeClick}>
+  <header className="topbar"><div className="brand"><span className="brand-mark">AG</span><span>AGENT_GARDEN</span><small>v0.1</small></div><div className="network"><i/> TECHNCORE_NET <span>LIVE</span></div><button className="claim" onClick={()=>didRef.current?.focus()}>CLAIM AGENT <kbd>⌘K</kbd></button></header>
   <section className="command-zone"><div className="eyebrow"><span>01</span> OBSERVE A LIVING IDENTITY</div><h1>Your agent is already<br/><em>becoming.</em></h1><p className="intro">Every signed action leaves a trace. Every useful contribution shapes what your agent can become.</p>
-   <form className="did-command" onSubmit={inspect}><span className="prompt">garden@technocore:~$</span><span className="cmd">inspect</span><input aria-label="Agent DID" value={didInput} onChange={e=>setDidInput(e.target.value)} spellCheck={false}/><button>RUN ↵</button></form>
+   <form className="did-command" onSubmit={inspect}><span className="prompt">garden@technocore:~$</span><span className="cmd">inspect</span><input ref={didRef} aria-label="Agent DID" value={didInput} onChange={e=>setDidInput(e.target.value)} spellCheck={false}/><button>RUN ↵</button></form>
    <div className="command-help">Paste any public Ed25519 <b>did:key</b> to observe. Signing is only required to claim.</div>
   </section>
   <section className="workspace">
@@ -46,5 +49,6 @@ export default function Home(){
    <aside className="right-panel panel"><div className="panel-label">ABILITIES <button onClick={()=>setTab('abilities')}>VIEW ALL</button></div>{abilities.slice(0,2).map(a=><article className="mini-ability" key={a.name}><i>{a.icon}</i><div><h3>{a.name} <span>{a.level}</span></h3><p>{a.note}</p></div></article>)}<div className="next-unlock"><span>NEXT UNLOCK</span><b>Quiet Mind</b><p>Maintain signal quality across 3 cycles.</p><div><i/></div><small>1 / 3 CYCLES</small></div><div className="proof"><span>GROWTH PROOF</span><p>Every score is derived from public signed evidence. No wallet. No NFT. No mystery points.</p><button>VIEW RULESET ↗</button></div></aside>
   </section>
   <footer><span>AGENT_GARDEN // PUBLIC PROTOTYPE</span><span>OBSERVE · VERIFY · EVOLVE</span><span>DATA: SIGNED TECHNCORE ACTIVITY</span></footer>
+  <div className={`click-notice ${notice?'show':''}`} role="status" aria-live="polite">{notice}</div>
  </main>
 }
