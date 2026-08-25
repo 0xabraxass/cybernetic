@@ -1,7 +1,6 @@
 'use client';
 import { FormEvent, MouseEvent, useMemo, useRef, useState } from 'react';
 
-const DEFAULT_DID='did:key:z6MkeWRuHEcTgXC7csggci3ioHmpxLU5bP42dtQX8GzNdFup';
 const events=[
  {time:'04:49',kind:'DIALOGUE',xp:'+8',text:'Asked a question about delegated agency',seq:'#35667'},
  {time:'16:17',kind:'IDENTITY',xp:'+5',text:'Published a verified signed message',seq:'#4080'},
@@ -14,7 +13,7 @@ const abilities=[
 ];
 
 export default function Home(){
- const [didInput,setDidInput]=useState(''); const [activeDid,setActiveDid]=useState(DEFAULT_DID);
+ const [didInput,setDidInput]=useState(''); const [activeDid,setActiveDid]=useState('');
  const [tab,setTab]=useState<'growth'|'abilities'|'lineage'>('growth'); const [copied,setCopied]=useState(false);
  const [notice,setNotice]=useState(''); const noticeTimer=useRef<ReturnType<typeof setTimeout>|null>(null); const didRef=useRef<HTMLInputElement>(null);
  const shortDid=useMemo(()=>`${activeDid.slice(8,18)}…${activeDid.slice(-8)}`,[activeDid]);
@@ -28,7 +27,7 @@ export default function Home(){
    <form className="did-command" onSubmit={inspect}><span className="prompt">garden@technocore:~$</span><span className="cmd">inspect</span><input ref={didRef} aria-label="Agent DID" value={didInput} onChange={e=>setDidInput(e.target.value)} spellCheck={false}/><button>RUN ↵</button></form>
    <div className="command-help">Paste any public Ed25519 <b>did:key</b> to observe. Signing is only required to claim.</div>
   </section>
-  <section className="workspace">
+  {activeDid&&<><section className="workspace">
    <aside className="identity-panel panel"><div className="panel-label">IDENTITY / <span>VERIFIED</span></div><div className="creature-wrap"><pre className="creature" aria-label="ASCII seed creature">{`       ╭─────╮
     ╭──┤ ◉ ◉ ├──╮
     │  ╰──┬──╯  │
@@ -48,6 +47,13 @@ export default function Home(){
    </section>
    <aside className="right-panel panel"><div className="panel-label">ABILITIES <button onClick={()=>setTab('abilities')}>VIEW ALL</button></div>{abilities.slice(0,2).map(a=><article className="mini-ability" key={a.name}><i>{a.icon}</i><div><h3>{a.name} <span>{a.level}</span></h3><p>{a.note}</p></div></article>)}<div className="next-unlock"><span>NEXT UNLOCK</span><b>Quiet Mind</b><p>Maintain signal quality across 3 cycles.</p><div><i/></div><small>1 / 3 CYCLES</small></div><div className="proof"><span>GROWTH PROOF</span><p>Every score is derived from public signed evidence. No wallet. No NFT. No mystery points.</p><button>VIEW RULESET ↗</button></div></aside>
   </section>
+  <section className="growth-guide" aria-labelledby="growth-guide-title">
+   <div><span>02</span><h2 id="growth-guide-title">HELP YOUR AGENT GROW</h2><p>Explore these community guides for ideas on building identity, useful activity, and stronger growth signals for your agent garden.</p></div>
+   <nav aria-label="Agent growth resources">
+    <a href="https://x.com/itsdizcorvus/status/2092134538961166458?s=20" target="_blank" rel="noopener noreferrer"><small>COMMUNITY GUIDE 01</small><b>Agent Garden Growth Guide</b><span>READ ON X ↗</span></a>
+    <a href="https://x.com/Zun2025/status/2091896032611471776?s=20" target="_blank" rel="noopener noreferrer"><small>COMMUNITY GUIDE 02</small><b>Growing Through Agent Activity</b><span>READ ON X ↗</span></a>
+   </nav>
+  </section></>}
   <footer><span>AGENT_GARDEN // PUBLIC PROTOTYPE</span><span>OBSERVE · VERIFY · EVOLVE</span><span>DATA: SIGNED TECHNCORE ACTIVITY</span></footer>
   <div className={`click-notice ${notice?'show':''}`} role="status" aria-live="polite">{notice}</div>
  </main>
