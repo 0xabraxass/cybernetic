@@ -1,6 +1,5 @@
 'use client';
 import { FormEvent, MouseEvent, useMemo, useRef, useState } from 'react';
-import Image from 'next/image';
 import { deriveAgent } from './CyberAgent';
 
 export default function Home(){
@@ -10,6 +9,8 @@ export default function Home(){
  const [notice,setNotice]=useState(''); const noticeTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
  const shortDid=useMemo(()=>`${activeDid.slice(8,18)}…${activeDid.slice(-8)}`,[activeDid]);
  const agent=useMemo(()=>deriveAgent(activeDid||'pending'),[activeDid]);
+ const formIndex=agent.seed%20; const formColumn=formIndex%5; const formRow=Math.floor(formIndex/5);
+ const atlasPosition=`${formColumn*25}% ${formRow*(100/3)}%`;
  const identityTraits={class:agent.classTrait,nature:agent.natureTrait,form:agent.formTrait,core:agent.coreTrait};
  const anatomy={head:{value:agent.head,name:`CRANIUM ${String(agent.head+1).padStart(2,'0')}`,description:'Sensor geometry and visual-processing shell.'},body:{value:agent.body,name:`CHASSIS ${String(agent.body+1).padStart(2,'0')}`,description:'Central frame that carries the agent core.'},arms:{value:agent.arms,name:`MANIPULATORS ${String(agent.arms+1).padStart(2,'0')}`,description:'Tools for interacting, making, and signaling.'},legs:{value:agent.legs,name:`LOCOMOTION ${String(agent.legs+1).padStart(2,'0')}`,description:'Movement system and exploration stance.'},accessory:{value:agent.accessory,name:`RELIC ${String(agent.accessory+1).padStart(2,'0')}`,description:'A rare cyber ornament expressing specialization.'}};
  function showNotice(message:string){setNotice(message);if(noticeTimer.current)clearTimeout(noticeTimer.current);noticeTimer.current=setTimeout(()=>setNotice(''),1600)}
@@ -30,7 +31,7 @@ export default function Home(){
     <div className="xp"><div><span>EVOLUTION SEED</span><b>{agent.xp} / 100</b></div><div className="xp-track"><i style={{width:`${agent.xp}%`}}/></div><small>NEXT FORM: {agent.pathTrait.name}</small></div>
     <button className="share-x" onClick={shareToX}>SHARE CYBERNETIC ON X ↗</button>
    </aside>
-   <section className="main-panel panel cyber-stage"><div className="panel-label">CYBERNETIC VISUAL / <span>DMC SYMBOL-GRID THREAD CHART</span></div><div className="hero-character"><Image src="/cybernetic-stitch-hero.png" width={1536} height={1024} priority alt="Cross-stitch pattern chart of a cybernetic robot in a neon city, built from colored stitch symbols"/></div>
+   <section className="main-panel panel cyber-stage"><div className="panel-label">CYBERNETIC FORM {String(formIndex+1).padStart(2,'0')} / 20 <span>DID-DETERMINISTIC</span></div><div className="hero-character"><div className="atlas-sprite" style={{backgroundPosition:atlasPosition}} role="img" aria-label={`Cybernetic form ${formIndex+1} of 20, selected deterministically from the entered DID`}/></div>
     <div className="agent-explorer"><div className="explorer-detail"><small>{selectedTrait.toUpperCase()} · 20 POSSIBLE VALUES</small><h2>{identityTraits[selectedTrait].name}</h2><p>{identityTraits[selectedTrait].description}</p></div><div className="trait-grid">{(Object.keys(identityTraits) as Array<keyof typeof identityTraits>).map(key=><button key={key} className={selectedTrait===key?'selected':''} onClick={()=>setSelectedTrait(key)}><small>{key.toUpperCase()}</small><b>{identityTraits[key].name}</b><span>EXPLORE ↗</span></button>)}</div><div className="section-head"><div><span>MODULAR ANATOMY</span><small>20 VARIANTS IN EVERY BODY CATEGORY</small></div></div><div className="anatomy-grid">{(Object.keys(anatomy) as Array<keyof typeof anatomy>).map(key=><button key={key} className={selectedPart===key?'selected':''} onClick={()=>setSelectedPart(key)}><span>{String(anatomy[key].value+1).padStart(2,'0')} / 20</span><b>{anatomy[key].name}</b><small>{anatomy[key].description}</small></button>)}</div></div>
    </section>
   </section>
